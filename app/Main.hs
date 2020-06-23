@@ -1,6 +1,9 @@
-module Main where
+module Main (main) where
 
-import Lib
+import CliOptions (optsInfo)
+import Options.Applicative (execParser)
 
 main :: IO ()
-main = someFunc
+main = do
+  options <- execParser optsInfo
+  pure ()
