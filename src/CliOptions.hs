@@ -1,5 +1,5 @@
 module CliOptions
-  ( Options
+  ( Options(..)
   , opts
   , optsInfo
   ) where
@@ -29,14 +29,14 @@ import Options.Applicative
 import ThreadLimit (ThreadLimit(..), readThreadLimit)
 
 data Options = Options
-  { optNumTerms :: Int
-  , optThreadLimit :: ThreadLimit
-  , optOutputFile :: String
-  , optQuiet :: Bool
+  { precision :: Integer
+  , threadLimit :: ThreadLimit
+  , outputFile :: String
+  , quiet :: Bool
   }
 
 opts :: Parser Options
-opts = Options <$> numTerms <*> threadLimit <*> outputFile <*> quiet
+opts = Options <$> optPrecision <*> optThreadLimit <*> optOutputFile <*> optQuiet
 
 -- | Full parser with info, used in @Main.main@
 optsInfo :: ParserInfo Options
@@ -45,16 +45,16 @@ optsInfo = info (helper <*> opts)
   <> progDesc "calculate pi with parallelization"
   <> footer "Repository: <https://github.com/stainlesspot/piCalc>"
 
--- | Number of terms of the partial sum to be calculated
-numTerms :: Parser Int
-numTerms = option auto
+-- | Number of digits of pi to be calculated
+optPrecision :: Parser Integer
+optPrecision = option auto
   $  short 'p'
-  <> long "num-terms"
+  <> long "precision"
   <> metavar "N"
-  <> help "Set the number of terms in the partial sum to be calculated (required)"
+  <> help "Set the number of digits of pi to be calculated (required)"
 
-threadLimit :: Parser ThreadLimit
-threadLimit = option (maybeReader readThreadLimit)
+optThreadLimit :: Parser ThreadLimit
+optThreadLimit = option (maybeReader readThreadLimit)
   $  short 't'
   <> long "thread-limit"
   <> metavar "N"
@@ -62,8 +62,8 @@ threadLimit = option (maybeReader readThreadLimit)
   <> value UnlimitedThreads
   <> showDefaultWith (const "unlimited")
 
-outputFile :: Parser String
-outputFile = strOption
+optOutputFile :: Parser String
+optOutputFile = strOption
   $  short 'o'
   <> long "output-file"
   <> metavar "FILE"
@@ -71,8 +71,8 @@ outputFile = strOption
   <> value "pi.out"
   <> showDefault
 
-quiet :: Parser Bool
-quiet = switch
+optQuiet :: Parser Bool
+optQuiet = switch
   $  short 'q'
   <> long "quiet"
   <> help "Prevent output of messages to stdout"

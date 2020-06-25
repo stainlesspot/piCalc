@@ -10,6 +10,8 @@ extra-source-files:
 - README.md
 - ChangeLog.md
 
+data-files: data/pi.million
+
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
 # category:            Web
@@ -22,6 +24,9 @@ description:         Please see the README on GitHub at <https://github.com/stai
 dependencies:
 - base >= 4.7 && < 5
 - optparse-applicative
+- numbers
+- time
+- deepseq
 
 library:
   source-dirs: src

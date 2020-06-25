@@ -13,10 +13,9 @@ data ThreadLimit
   deriving (Show, Eq)
 
 toThreadLimit :: NonNegative -> ThreadLimit
-toThreadLimit nn = 
-  case fromNonNegative nn of
-    0 -> UnlimitedThreads
-    _ -> NumThreads nn
+toThreadLimit nn = case fromNonNegative nn of
+  0 -> UnlimitedThreads
+  _ -> NumThreads nn
 
 readThreadLimit :: String -> Maybe ThreadLimit
 readThreadLimit s
