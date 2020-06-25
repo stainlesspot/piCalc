@@ -1,3 +1,5 @@
+{-# LANGUAGE BangPatterns #-}
+
 module PiCalc
   ( calcPi
   , showFixed
@@ -27,25 +29,44 @@ data Multipliers = Multipliers
   , mM :: Rational
   } deriving (Show, Eq)
 
-initialMult :: Multipliers
-initialMult = Multipliers
-  { mK = 0
-  , mL = 1103
+
+-- | create Multipliers, starting from @k@
+-- when @k == 0@ we have the initial multipliers,
+-- which are different in @mL@ and @mH@
+multipliers :: Integer -> Multipliers
+multipliers k = Multipliers
+  { mK = k
+  , mL = l
   , mX = 1
-  , mH = -2
+  , mH = h
   , mM = 1
-  }
+  } where 
+    l = if k == 0 then 1103 else 0 
+    h = if k == 0 then -2 else 0
 
 increase :: Multipliers -> Multipliers
-increase (Multipliers mK' mL' mX' mH' mM') = Multipliers
-  { mK = mK
-  , mL = mL' + 26390
-  , mX = mX' * 24591257856 
-  , mH = mH
-  , mM = mM' * 4 * (((mH ^ 3) - mH) % (mK ^ 3))
+increase (Multipliers k l x h m) = Multipliers
+  { mK = k'
+  , mL = l + 26390
+  , mX = x * 24591257856 
+  , mH = h'
+  , mM = m * 4 * (((h' ^ 3) - h') % (k' ^ 3))
   } where
-    mK = mK' + 1
-    mH = mH' + 4
+    k' = k + 1
+    h' = h + 4
+
+combine :: Multipliers -> Multipliers -> Multipliers
+combine (Multipliers k l x h m) (Multipliers k' l' x' h' m')
+  = Multipliers
+  { mK = k + k'
+  , mL = l + l'
+  , mX = x * x'
+  , mH = h + h'
+  , mM = m * m'
+  }
+
+
+
 
 term :: Multipliers -> Rational
 term (Multipliers _ mL mX _ mM) = mM * (mL % mX)
@@ -61,12 +82,23 @@ calcPi prec = approxRational (mC / sum) (eps / 1000)
     p = fromIntegral prec
     eps = fromPrecision $ prec + ceiling (p / 1000)
     mC = 9801 / (2 * F.sqrt eps 2)
-    sum = go initialMult 0
+
     numTerms = ceiling (p / digitsPerTerm)
+    sum = calcPartialSum numTerms
+
+
+-- | Main target for parallelization
+calcPartialSum :: Integer -> Rational
+calcPartialSum numTerms = go (multipliers 0) 0
+  where
     go :: Multipliers -> Rational -> Rational
-    go mult res
+    go !mult !res
       | mK mult == numTerms = res
       | otherwise           = go (increase mult) (res + term mult)
+
+-- | Sums terms from i to j in the series
+--calcRangeSum :: (Integer,Integer) -> Rational
+--calcRangeSum (i,j) = 
 
 showFixed :: Integer -> Rational -> String
 showFixed prec rat = case ds of
@@ -79,7 +111,7 @@ showFixed prec rat = case ds of
 
 
 getMult :: Integer -> Multipliers
-getMult n = go initialMult
+getMult n = go (multipliers 0)
   where
     go mult
       | mK mult == n = mult
