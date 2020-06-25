@@ -20,6 +20,3 @@ toThreadLimit nn = case fromNonNegative nn of
 readThreadLimit :: String -> Maybe ThreadLimit
 readThreadLimit s
   = toThreadLimit <$> (toNonNegative =<< readMaybe s)
-  
-  
-

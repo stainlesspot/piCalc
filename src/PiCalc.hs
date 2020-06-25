@@ -6,8 +6,6 @@ module PiCalc
   , fromPrecision
   ) where
 
---import Debug.Trace
-
 import Data.Ratio ((%), approxRational)
 import qualified Data.Number.FixedFunctions as F (sqrt, approx)
 import Data.Number.Fixed
@@ -53,7 +51,7 @@ term :: Multipliers -> Rational
 term (Multipliers _ mL mX _ mM) = mM * (mL % mX)
 
 -- Approximate number of digits of pi each term gives
--- https://rmmc.eas.asu.edu/rmj/rmjVOLS2/vol19/vol19-1/bor.pdf (p.94)
+-- https://rmmc.eas.asu.edu/rmj/rmjVOLS2/vol19/vol19-1/bor.pdf (page 94)
 digitsPerTerm :: Num a => a
 digitsPerTerm = 7
 
