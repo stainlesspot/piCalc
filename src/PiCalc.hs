@@ -2,13 +2,13 @@ module PiCalc
   ( calcPiSeq
   , calcPiPar
   , showFixed
-  , getMult
+ -- , getMult
   , term
   , fromPrecision
   ) where
 
-import Debug.Trace
 
+import Prelude hiding (pi)
 import Term
 import Data.Ratio ((%), approxRational)
 import qualified Data.Number.FixedFunctions as F (sqrt, approx)
@@ -31,7 +31,6 @@ import Control.Parallel.Strategies
   , parList
   )
 
-
 -- Approximate number of digits of pi each term gives
 -- https://rmmc.eas.asu.edu/rmj/rmjVOLS2/vol19/vol19-1/bor.pdf (page 94)
 digitsPerTerm :: Num a => a
@@ -49,12 +48,12 @@ showFixed prec rat = case ds of
 fromPrecision :: Integer -> Rational
 fromPrecision p = 1 % (10 ^ p)
 
-getMult :: Integer -> Term
-getMult n = go initial
-  where
-    go !t
-      | mK t == n = t
-      | otherwise = go $ increase t
+--getMult :: Integer -> Term
+--getMult n = go initial
+--  where
+--    go !t
+--      | mK t == n = t
+--      | otherwise = go $ increase t
 
 -- | Used in parBuffer to indicate the number of sparks to be created initially.
 -- value taken from:
@@ -71,18 +70,6 @@ calcPiWith calcPS prec = approxRational (mC / sum) (eps / 1000)
 
     numTerms = ceiling (p / digitsPerTerm)
     sum = calcPS numTerms
-
-calcPiSeq :: Integer -> Rational
-calcPiSeq = calcPiWith calcPartialSumSeq
-
--- | Main target for parallelization
-calcPartialSumSeq :: Integer -> Rational
-calcPartialSumSeq numTerms = go initial 0
-  where
-    go :: Term -> Rational -> Rational
-    go !t !res
-      | mK t == numTerms = res
-      | otherwise        = go (increase t) (res + calcTerm t)
 
 
 -- | get terms in the range [i,j) - j is excluded
@@ -120,9 +107,12 @@ combineSums (sum1, l1) (sum2, l2) =
 
 chunkRange :: Integer -> (Integer, Integer) -> [(Integer, Integer)]
 chunkRange n (!i, j)
-  | i >= j     = []
+  | i >= j    = []
   | otherwise = let i' = min j (i+n)
                  in (i, i') : chunkRange n (i', j)
+
+calcPiPar :: Integer -> Rational
+calcPiPar = calcPiWith calcPartialSumPar
   
 calcPartialSumPar :: Integer -> Rational
 calcPartialSumPar numTerms
@@ -133,5 +123,15 @@ calcPartialSumPar numTerms
   $ chunkRange n (0, numTerms)
   where n = 100
 
-calcPiPar :: Integer -> Rational
-calcPiPar = calcPiWith calcPartialSumPar
+
+calcPiSeq :: Integer -> Rational
+calcPiSeq = calcPiWith calcPartialSumSeq
+
+-- | Main target for parallelization
+calcPartialSumSeq :: Integer -> Rational
+calcPartialSumSeq numTerms = go initial 0
+  where
+    go :: Term -> Rational -> Rational
+    go !t !res
+      | mK t == numTerms = res
+      | otherwise        = go (increase t) (res + calcTerm t)

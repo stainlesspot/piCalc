@@ -28,6 +28,7 @@ dependencies:
 - time
 - deepseq
 - parallel
+- hspec
 
 default-extensions:
 - BangPatterns
@@ -46,15 +47,13 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - piCalc
-  piCalc-eventlog:
+  piTime:
     main:                Main.hs
-    source-dirs:         app
+    source-dirs:         piTime
     ghc-options:
     - -O2
     - -threaded
     - -rtsopts
-    - '"-with-rtsopts=-N -l"'
-    - -eventlog
     dependencies:
     - piCalc
 
