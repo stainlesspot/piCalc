@@ -27,6 +27,10 @@ dependencies:
 - numbers
 - time
 - deepseq
+- parallel
+
+default-extensions:
+- BangPatterns
 
 library:
   source-dirs: src
@@ -36,9 +40,21 @@ executables:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
+    - -O2
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    dependencies:
+    - piCalc
+  piCalc-eventlog:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -O2
+    - -threaded
+    - -rtsopts
+    - '"-with-rtsopts=-N -l"'
+    - -eventlog
     dependencies:
     - piCalc
 

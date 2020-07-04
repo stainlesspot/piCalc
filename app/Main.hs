@@ -1,7 +1,7 @@
 module Main (main) where
 
 import CliOptions (Options(..), optsInfo)
-import PiCalc (calcPi, showFixed)
+import PiCalc (calcPiPar, showFixed)
 import CheckPi (printPiCheck)
 import Options.Applicative (execParser)
 import Data.Function (on)
@@ -17,12 +17,11 @@ main = do
     , quiet = quiet
     , outputFile = outputFile
     } <- execParser optsInfo
-  let pi' = calcPi p
+  let pi' = calcPiPar p
       spi' = showFixed p pi'
   
-  t0 <- getCurrentTime 
-  t1 <- spi' `deepseq` getCurrentTime 
-
+  t0 <- getCurrentTime
+  t1 <- spi' `deepseq` getCurrentTime
 
   writeFile outputFile spi'
 
