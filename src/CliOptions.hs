@@ -4,6 +4,7 @@ module CliOptions
   , optsInfo
   ) where
 
+import Parameters
 import Options.Applicative
   ( Parser
   , ParserInfo
@@ -31,12 +32,19 @@ import ThreadLimit (ThreadLimit(..), readThreadLimit)
 data Options = Options
   { precision :: Integer
   , threadLimit :: ThreadLimit
+  , granularity :: Int
   , outputFile :: String
   , quiet :: Bool
   }
 
 opts :: Parser Options
-opts = Options <$> optPrecision <*> optThreadLimit <*> optOutputFile <*> optQuiet
+opts
+  = Options
+  <$> optPrecision
+  <*> optThreadLimit
+  <*> optGranularity
+  <*> optOutputFile
+  <*> optQuiet
 
 -- | Full parser with info, used in @Main.main@
 optsInfo :: ParserInfo Options
@@ -62,14 +70,22 @@ optThreadLimit = option (maybeReader readThreadLimit)
   <> value UnlimitedThreads
   <> showDefaultWith (const "unlimited")
 
+optGranularity :: Parser Int
+optGranularity = option auto
+  $  short 'g'
+  <> long "granularity"
+  <> metavar "N"
+  <> help "Set granularity of the parallelization"
+  <> value defaultGranularity
+  <> showDefault
+
 optOutputFile :: Parser String
 optOutputFile = strOption
   $  short 'o'
   <> long "output-file"
   <> metavar "FILE"
   <> help "Output calculated digits to FILE"
-  <> value "pi.out"
-  <> showDefault
+  <> value "_"
 
 optQuiet :: Parser Bool
 optQuiet = switch

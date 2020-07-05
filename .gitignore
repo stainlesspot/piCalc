@@ -3,5 +3,6 @@
 *.eventlog
 *.prof
 *.prof.html
+prof/
 pi.out
 
