@@ -100,7 +100,7 @@ partialSum numTerms
   = go 1 0
   --  fst
   --  foldl' addTermsSum (0, neutral)
-  --  withStrategy (parList rdeepseq)--(parBuffer 100 rdeepseq)
+  $ withStrategy (parBuffer 100 rdeepseq) -- (parBuffer 100 rdeepseq)
   $ map (termsSumLast . piRangeTerms)
   $ chunkRange n (0, numTerms)
   where

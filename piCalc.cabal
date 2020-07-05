@@ -74,7 +74,7 @@ executable piTime
   hs-source-dirs:
       piTime
   default-extensions: BangPatterns
-  ghc-options: -O2 -threaded -rtsopts
+  ghc-options: -O2 -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
     , deepseq

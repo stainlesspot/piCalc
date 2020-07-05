@@ -54,6 +54,7 @@ executables:
     - -O2
     - -threaded
     - -rtsopts
+    - -with-rtsopts=-N
     dependencies:
     - piCalc
 

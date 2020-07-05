@@ -3,6 +3,7 @@ module Sqrt2 (sqrt2) where
 import Data.Ratio (approxRational, (%))
 import Data.List (foldl', genericTake)
 import Data.Bifunctor (Bifunctor(bimap))
+import Control.Parallel.Strategies (parBuffer, withStrategy, parList, rdeepseq)
 
 data Sqrt2Term = STerm
   { sK :: Integer
@@ -47,7 +48,7 @@ termsSumLast
 sqrt2 :: Rational -> Rational
 sqrt2 eps
   = go 1 0
-    -- withstrategy
+  $ withStrategy (parBuffer 100 rdeepseq)
   $ map (termsSumLast . sqrt2RangeTerms)
   $ ranges
   where
