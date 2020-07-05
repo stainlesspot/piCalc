@@ -3,14 +3,14 @@ module Main (main) where
 import Data.Time.Clock (getCurrentTime, diffUTCTime)
 import System.Environment (getArgs)
 import Text.Printf (printf)
-import PiCalc (calcPiPar)
+import PiCalc (calcPi)
 
 -- calculate pi outputing only total calc time
 main :: IO ()
 main = do
   [prec] <- getArgs
 
-  let pi' = calcPiPar $ read prec
+  let pi' = calcPi $ read prec
   
   t0 <- getCurrentTime
   t1 <- pi' `seq` getCurrentTime

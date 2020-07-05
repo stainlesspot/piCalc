@@ -5,70 +5,59 @@ import Control.DeepSeq (NFData(..))
 
 -- Represents a term in the partial sum of pi
 data Term = Term
-  { mK :: Integer
-  , mL :: Integer
-  , mX :: Integer
-  , mH :: Integer
-  , mM :: Rational
+  { tK :: Integer
+  , tL :: Integer
+  , tM :: Rational
   } deriving (Show, Eq)
 
 instance NFData Term where
-  rnf (Term k l x h m) = k `seq` l `seq` x `seq` h `seq` m `seq` ()
+  rnf (Term k l m) = k `seq` l `seq` m `seq` ()
 
 
 initial :: Term
 initial = Term
-  { mK = 0
-  , mL = 1103
-  , mX = 1
-  , mH = -2
-  , mM = 1
+  { tK = 0
+  , tL = 1103
+  , tM = 1
   }
 
 term :: Integer -> Term
-term k
-  | k == 0    = initial
-  | otherwise = Term
-    { mK = k
-    , mL = 26390
-    , mX = 24591257856 
-    , mH = h
-    , mM = 4 * (((h ^ 3) - h) % (k ^ 3))
+term 0 = initial
+term k = Term
+    { tK = k
+    , tL = 1103 + 26390 * k
+    , tM = h * (h+1) * (h+2) % (k^3 * 6147814464)
     } where
-      h = 4 * k - 2
+      h = 4 * k - 1
 
 ---- | Neutral with respect to @combine@
 ----
 ---- neutral `combine` t == t `combine` neutral == t
 neutral :: Term
 neutral = Term
-  { mK = 0
-  , mL = 0
-  , mX = 1
-  , mH = 0
-  , mM = 1
+  { tK = 0
+  , tL = 0
+  , tM = 1
   }
 
 increase :: Term -> Term
-increase (Term !k !l !x !h !m) = Term
-  { mK = k'
-  , mL = l + 26390
-  , mX = x * 24591257856 
-  , mH = h'
-  , mM = m * 4 * (((h' ^ 3) - h') % (k' ^ 3))
+increase (Term !k !l !m) = Term
+  { tK = k'
+  , tL = l + 26390
+  , tM = m * 4 * (h * (h+1) * (h+2) %  (k'^3 * 6147814464))
   } where
     k' = k + 1
-    h' = h + 4
+    h  = 4 * k - 1
 
-combine :: Term -> Term -> Term
-combine (Term k l x h m) (Term k' l' x' h' m')
-  = Term
-  { mK = max k k'
-  , mL = l + l'
-  , mX = x * x'
-  , mH = if k > k' then h else h'
-  , mM = m * m'
-  }
+--combine :: Term -> Term -> Term
+--combine (Term k l x h m) (Term k' l' x' h' m')
+--  = Term
+--  { mK = max k k'
+--  , mL = l + l'
+--  , mX = x * x'
+--  , mH = if k > k' then h else h'
+--  , mM = m * m'
+--  }
 
 calcTerm :: Term -> Rational
-calcTerm (Term _ mL mX _ mM) = mM * (mL % mX)
+calcTerm (Term _ l m) = m * (l % 1)

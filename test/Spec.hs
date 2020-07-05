@@ -12,7 +12,7 @@ main = do
     withDigitsSpec spiMil 10
     withDigitsSpec spiMil 1000
     withDigitsSpec spiMil 10000
-    withDigitsSpec spiMil 30000
+    --withDigitsSpec spiMil 30000
 
 matchesLibraryPi :: Rational -> Integer -> Bool
 matchesLibraryPi pi' prec = dynamicEps eps (== fromRational piLP) pi'

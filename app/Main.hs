@@ -1,7 +1,7 @@
 module Main (main) where
 
 import CliOptions (Options(..), optsInfo)
-import PiCalc (calcPiPar, showFixed)
+import PiCalc (calcPi, showFixed)
 import Options.Applicative (execParser)
 import Data.Function (on)
 import Control.Monad (unless)
@@ -17,7 +17,7 @@ main = do
     , outputFile = outputFile
     } <- execParser optsInfo
 
-  let pi' = calcPiPar p
+  let pi' = calcPi p
       spi' = showFixed p pi'
   
   t0 <- getCurrentTime
