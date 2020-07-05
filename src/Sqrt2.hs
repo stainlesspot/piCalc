@@ -55,8 +55,9 @@ sqrt2 eps
     ranges = iterate (bimap (+n) (+n)) (0,n)
     go :: Rational -> Rational -> [(Rational, Rational)] -> Rational
     go !l !v ((s,l'):ps)
-      | abs ls < eps = approxRational v' eps
+      | abs ls < eps' = approxRational v' eps'
       | otherwise    = go (l * l') v' ps 
       where
         ls = l * s
         v' = v + ls
+        eps' = eps / 10

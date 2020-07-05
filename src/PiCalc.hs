@@ -52,13 +52,6 @@ sparkBufferSize = 100
 
 
 
--- | get terms in the range [i,j) - j is excluded
--- also return the last term in the range, to be used for the next range
-piRangeTerms :: (Integer, Integer) -> [Term]
-piRangeTerms (i, j)
-  = genericTake (max 0 (j-i))
-  $ iterate' increase
-  $ term i
 
 ---- | Used to fold [[Term]]
 ---- @l@ is the last term from the previous call to @addTermsSum@,
@@ -88,6 +81,14 @@ termsSumLast
       where
         s' = s + calcTerm t
 
+-- | get terms in the range [i,j) - j is excluded
+-- also return the last term in the range, to be used for the next range
+piRangeTerms :: (Integer, Integer) -> [Term]
+piRangeTerms (i, j)
+  = genericTake (max 0 (j-i))
+  $ iterate' increase
+  $ term i
+
 chunkRange :: Integer -> (Integer, Integer) -> [(Integer, Integer)]
 chunkRange n (!i, j)
   | i >= j    = []
@@ -99,7 +100,7 @@ partialSum numTerms
   = go 1 0
   --  fst
   --  foldl' addTermsSum (0, neutral)
-  $ withStrategy (parList rdeepseq)--(parBuffer 100 rdeepseq)
+  --  withStrategy (parList rdeepseq)--(parBuffer 100 rdeepseq)
   $ map (termsSumLast . piRangeTerms)
   $ chunkRange n (0, numTerms)
   where
@@ -109,7 +110,7 @@ partialSum numTerms
     go !q !v ((s,t):ps) = go q' v' ps
       where
         v' = v + s * q
-        q' = q * calcTerm t
+        q' = q * tM t
       
 
 -- Approximate number of digits of pi each term gives
@@ -122,8 +123,7 @@ calcPi prec = approxRational pi' (eps / 1000)
   where
     p = fromIntegral prec
     eps = fromPrecision $ prec + ceiling (p / 1000)
-    numTerms = ceiling (p / digitsPerTerm)
+    numTerms = prec -- ceiling (p / digitsPerTerm)
 
     sum = partialSum numTerms
-    c = 9801 / (2 * sqrt2 eps)
-    pi' = c / sum
+    pi' = 9801 / (2 * sqrt2 eps * sum)
