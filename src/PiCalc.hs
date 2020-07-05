@@ -123,7 +123,7 @@ calcPi prec = approxRational pi' (eps / 1000)
   where
     p = fromIntegral prec
     eps = fromPrecision $ prec + ceiling (p / 1000)
-    numTerms = prec -- ceiling (p / digitsPerTerm)
+    numTerms = ceiling (p / digitsPerTerm)
 
     sum = partialSum numTerms
     pi' = 9801 / (2 * sqrt2 eps * sum)
