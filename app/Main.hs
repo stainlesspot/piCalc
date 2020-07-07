@@ -40,10 +40,12 @@ main = do
   t0 <- getCurrentTime
   t1 <- pi' `seq` getCurrentTime
   
-  unless (outputFile == "_") $ do
+  unless (outputFile == "_") $
     writeFile outputFile $ showFixed p pi'
+  
+  let tdiff :: Double
+      tdiff = realToFrac (diffUTCTime t1 t0)
+  if quiet
+  then printf "%.3f\n" tdiff
+  else printf "calculation time: %.3fs\nwith %d threads\n" tdiff t
 
-  unless quiet $ do
-    printf "calculation time: %.3fs\n" (realToFrac (diffUTCTime t1 t0) :: Double)
-    actualNumThreads <- getNumCapabilities
-    printf "with %d %d threads\n" actualNumThreads t
