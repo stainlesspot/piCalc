@@ -2,7 +2,7 @@ import Precision
 import qualified Parameters as P (precision)
 import Parameters
 import Paths_piCalc (getDataFileName)
-import PiCalc (calcPi)
+import PiCalc (calcPiP)
 import Data.Number.Fixed (dynamicEps)
 import qualified Data.Number.FixedFunctions as F
 import Sqrt2 (calcSqrt2)
@@ -63,7 +63,7 @@ piWithDigitsSpec spiM params
         matchesThirdPartyPi pi' prec spiTP
   where
     prec = P.precision params
-    pi' = calcPi params
+    pi' = calcPiP params
     spiTP = take (fromIntegral prec + 2) spiM
 
 sqrt2WithDigitsSpec :: Parameters -> Spec

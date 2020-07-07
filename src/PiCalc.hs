@@ -1,4 +1,4 @@
-module PiCalc (calcPi) where
+module PiCalc (calcPi, calcPiP) where
 
 import Parameters
 import Term
@@ -11,6 +11,7 @@ import Control.Parallel.Strategies
   , parBuffer
   )
 import Data.Bifunctor (Bifunctor(bimap))
+import qualified Data.Number.FixedFunctions as F
 
 
 -- | Used in parBuffer to indicate the number of sparks to be created initially.
@@ -60,6 +61,13 @@ partialSum params@Params{ numThreads = nt, granularity = g }
 
 calcPi :: Parameters -> Rational
 calcPi params = pi'
+  where
+    pi' = 9801 / (2 * sqrt2 * sum)
+    sqrt2 = toRational $ sqrt 2
+    sum = partialSum params
+    
+calcPiP :: Parameters -> Rational
+calcPiP params = pi'
   where
     pi' = 9801 / (2 * sqrt2 * sum)
     sqrt2 = calcSqrt2 params
