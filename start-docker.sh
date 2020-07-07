@@ -2,7 +2,7 @@
 
 docker run \
   --name picalc \
-  --mount "type=bind,source=$(pwd)/stat,target=/piCalc/stat-bound" \
+  --mount "type=bind,source=$(pwd)/stats,target=/piCalc/stats-bound" \
   --rm \
   picalc \
-  ./stat-bound/gather.sh 5 32
+  ./stats-bound/gather.sh 5 32
