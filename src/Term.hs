@@ -48,3 +48,17 @@ increase (Term !k !l !m) = Term
 
 calcTerm :: Term -> Rational
 calcTerm (Term _ l m) = m * (l % 1)
+
+-- | chunk a range into subranges each with a length of @n@
+chunkRange :: Integer -> (Integer, Integer) -> [(Integer, Integer)]
+chunkRange l (i, j)
+  | i >= j    = []
+  | otherwise = let !i' = min j (i+l)
+                 in (i, i') : chunkRange l (i', j)
+
+
+-- | Used in parBuffer to indicate the number of sparks to be created initially.
+-- value taken from:
+-- https://www.oreilly.com/library/view/parallel-and-concurrent/9781449335939/ch03.html#sec_parBuffer
+sparkBufferSize :: Int
+sparkBufferSize = 32

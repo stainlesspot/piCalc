@@ -1,5 +1,6 @@
 module Sqrt2 (calcSqrt2) where
 
+import Term (chunkRange)
 import Parameters
 import Data.Ratio (approxRational, (%))
 import Data.List (foldl', genericTake)
@@ -46,20 +47,37 @@ termsSumLast
     add :: (Rational, Rational) -> Rational -> (Rational, Rational)
     add (s, _) m = (s + m, m)
 
+--calcSqrt2 :: Parameters -> Rational
+--calcSqrt2 params@Params{ numThreads = nt, granularity = g }
+--  = go 1 0
+--  $ withStrategy (parBuffer 100 rdeepseq)
+--  $ map (termsSumLast . sqrt2RangeTerms)
+--  $ ranges
+--  where
+--    eps = getEps params / 10
+--    len = max 1 (numTerms params `div` fromIntegral (nt * g))
+--    ranges = iterate (bimap (+ len) (+ len)) (0, len)
+--    go :: Rational -> Rational -> [(Rational, Rational)] -> Rational
+--    go !l !v ((s,l'):ps)
+--      | abs ls < eps = approxRational v' eps
+--      | otherwise    = go (l * l') v' ps 
+--      where
+--        ls = l * s
+--        v' = v + ls
+--
 calcSqrt2 :: Parameters -> Rational
 calcSqrt2 params@Params{ numThreads = nt, granularity = g }
   = go 1 0
-  $ withStrategy (parBuffer 100 rdeepseq)
+  $ withStrategy (parList rdeepseq)
   $ map (termsSumLast . sqrt2RangeTerms)
-  $ ranges
+  $ chunkRange len (0, n)
   where
-    eps = getEps params / 10
-    len = max 1 (numTerms params `div` fromIntegral (nt * g))
-    ranges = iterate (bimap (+ len) (+ len)) (0, len)
+    n = numTerms params
+    len = max 1 (n `div` fromIntegral (nt * g))
     go :: Rational -> Rational -> [(Rational, Rational)] -> Rational
-    go !l !v ((s,l'):ps)
-      | abs ls < eps = approxRational v' eps
-      | otherwise    = go (l * l') v' ps 
+    go _  !v [] = v
+    go !q !v ((s,l):ps) = go q' v' ps
       where
-        ls = l * s
-        v' = v + ls
+        v' = v + s * q
+        q' = q * l
+

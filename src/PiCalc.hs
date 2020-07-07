@@ -1,4 +1,9 @@
-module PiCalc (calcPi, calcPiP) where
+module PiCalc
+  ( calcPi
+  , calcPiP
+  , sparkBufferSize
+  , chunkRange
+  ) where
 
 import Parameters
 import Term
@@ -9,16 +14,12 @@ import Control.Parallel.Strategies
   ( rdeepseq
   , withStrategy
   , parBuffer
+  , parList
   )
 import Data.Bifunctor (Bifunctor(bimap))
 import qualified Data.Number.FixedFunctions as F
 
 
--- | Used in parBuffer to indicate the number of sparks to be created initially.
--- value taken from:
--- https://www.oreilly.com/library/view/parallel-and-concurrent/9781449335939/ch03.html#sec_parBuffer
-sparkBufferSize :: Int
-sparkBufferSize = 100
 
 -- | return the sum of all terms in the list and the last term
 termsSumLast :: [Term] -> (Rational, Term)
@@ -36,17 +37,11 @@ piRangeTerms (i, j)
   $ iterate' increase
   $ term i
 
--- | chunk a range into subranges each with a length of @n@
-chunkRange :: Integer -> (Integer, Integer) -> [(Integer, Integer)]
-chunkRange l (i, j)
-  | i >= j    = []
-  | otherwise = let !i' = min j (i+l)
-                 in (i, i') : chunkRange l (i', j)
   
 partialSum :: Parameters -> Rational
 partialSum params@Params{ numThreads = nt, granularity = g }
   = go 1 0
-  $ withStrategy (parBuffer sparkBufferSize rdeepseq)
+  $ withStrategy (parList rdeepseq)
   $ map (termsSumLast . piRangeTerms)
   $ chunkRange len (0, n)
   where
@@ -63,7 +58,7 @@ calcPi :: Parameters -> Rational
 calcPi params = pi'
   where
     pi' = 9801 / (2 * sqrt2 * sum)
-    sqrt2 = toRational $ sqrt 2
+    sqrt2 = calcSqrt2 params -- toRational $ sqrt 2
     sum = partialSum params
     
 calcPiP :: Parameters -> Rational
