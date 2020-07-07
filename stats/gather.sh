@@ -17,10 +17,11 @@ for t in "${all_threads[@]}"; do
   fi
 done
 
-cd $(dirname $0)/..
+dir=$(dirname $0)
+cd $dir/..
 stack build
 
-outputFile=stats/stats-${precision}.csv
+outputFile=$dir/stats-${precision}.csv
 if [ -f $outputFile ]; then
   mv $outputFile ${outputFile}.old
 fi
