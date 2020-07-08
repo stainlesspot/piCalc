@@ -3,7 +3,7 @@
 num_runs=${1:-5}
 thread_limit=${2:-32}
 
-precision=50000
+precision=100000
 granularities=(1 2 4 8 12 16 20 24 28 32)
 all_threads=(1 2 4 8 12 16 20 24 28 32)
 
