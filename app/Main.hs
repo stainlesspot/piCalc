@@ -18,18 +18,12 @@ main :: IO ()
 main = do
   Options
     { precision = p
-    , threadLimit = tl
     , granularity = g
     , outputFile = outputFile
     , quiet = quiet
     } <- execParser optsInfo
 
-  t <- case tl of
-    UnlimitedThreads -> getNumCapabilities
-    NumThreads nonneg -> do
-      let n = fromNonNegative nonneg
-      setNumCapabilities n
-      return n
+  t <- getNumCapabilities
 
   let pi' = calcPi P.Params{
         P.precision = p
