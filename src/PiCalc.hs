@@ -17,6 +17,7 @@ import Control.Parallel.Strategies
   )
 import Data.Bifunctor (Bifunctor(bimap))
 import qualified Data.Number.FixedFunctions as F
+import Debug.Trace (traceShowId)
 
 
 
@@ -44,6 +45,16 @@ termsSumLast (i, j) = go i 0 $ term i
       | i' >= j = (s, t)
       | otherwise = go (i'+1) (s + calcTerm t) (increase t)
 
+balanceFactor = 16
+
+chunkAndSumLast :: Parameters -> (Integer, Integer) -> (Rat, Term)
+chunkAndSumLast Params{ numThreads = nt, granularity = g } (i, j)
+  = foldSumLasts
+  $ map termsSumLast
+  $ chunkRange n (i, j)
+  where
+    !n = max 1 $ balanceFactor `div` nt
+
   
 --partialSum :: Parameters -> Rational
 --partialSum params@Params{ numThreads = nt, granularity = g }
@@ -63,19 +74,24 @@ termsSumLast (i, j) = go i 0 $ term i
 
 partialSum :: Parameters -> Rat
 partialSum params@Params{ numThreads = nt, granularity = g }
-  = go 1 0
+  = fst
+  $ foldSumLasts
   $ withStrategy (parList rdeepseq)
-  $ map termsSumLast
+  $ map (chunkAndSumLast params)
   $ chunkRange nt (0, n)
   where
     n = numTerms params
 
-    go :: Rat -> Rat -> [(Rat, Term)] -> Rat
-    go _  !v [] = v
-    go !q !v ((s,t):ps) = go q' v' ps
+foldSumLasts :: [(Rat, Term)] -> (Rat, Term)
+foldSumLasts = go 1 0 initial
+  where
+    go :: Rat -> Rat -> Term -> [(Rat, Term)] -> (Rat, Term)
+    go _  !v t [] = (v, t)
+    go !q !v _ ((s,t):ps) = go q' v' t ps
       where
         v' = v + s * q
         q' = q * (tM t % tX t)
+
 
 calcPi :: Parameters -> Rat
 calcPi params = pi'

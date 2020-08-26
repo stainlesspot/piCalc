@@ -3,7 +3,7 @@
 num_runs=${1:-5}
 thread_limit=${2:-32}
 
-precision=50000
+precision=100000
 granularities=(1 2 4 8 12 16 20 24 28 32)
 all_threads=(1 2 4 8 12 16 20 24 28 32)
 
@@ -28,9 +28,9 @@ fi
 echo 'runNo,numThreads,granularity,time' > $outputFile
 
 for (( r = 0; r < $num_runs; ++r )); do
-  for t in "${threads[@]}"; do
-    for g in "${granularities[@]}"; do
-      cmd="stack run -- -q -o _  -p $precision -t $t -g $g"
+  for g in "${granularities[@]}"; do
+    for t in "${threads[@]}"; do
+      cmd="stack run -- -q -o _ -p $precision -g $g +RTS -N$t"
       echo -ne "running '$cmd' (run $r)\r"
       time="$($cmd)"
       echo "$r,$t,$g,$time" >> $outputFile
