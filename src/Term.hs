@@ -81,11 +81,14 @@ increase :: Term -> Term
 increase (Term k l m x) = Term
   { tK = k'
   , tL = l + 26390
-  , tM = m * h * (h-1) * (h-2)
-  , tX = x * k'^3 * 6147814464
+  , tM = m * partM --`quot` d)
+  , tX = x * partM --`quot` d)
   } where
     k' = k + 1
     h  = 4 * k' - 1
+    partM = h * (h-1) * (h-2)
+    partX = k'^3 * 6147814464
+    d = gcd partM partX
 
 calcTerm :: Term -> Rat
 calcTerm (Term _ l m x) = (m * l) % x
