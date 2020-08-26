@@ -34,8 +34,8 @@ main = do
   t0 <- getCurrentTime
   t1 <- pi' `seq` getCurrentTime
   
-  unless (outputFile == "_") $
-    writeFile outputFile $ showFixed p pi'
+  --unless (outputFile == "_") $
+  --  writeFile outputFile $ showFixed p pi'
   
   let tdiff :: Double
       tdiff = realToFrac (diffUTCTime t1 t0)

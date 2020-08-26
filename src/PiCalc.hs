@@ -8,7 +8,6 @@ module PiCalc
 import Parameters
 import Term
 import Sqrt2 (calcSqrt2)
-import Data.Ratio ((%), approxRational)
 import Data.List (foldl', iterate', genericTake)
 import Control.Parallel.Strategies
   ( rdeepseq
@@ -38,7 +37,7 @@ import qualified Data.Number.FixedFunctions as F
 --  $ term i
 --
 -- Sum terms in the range (i,j). return the sum and the last term
-termsSumLast :: (Integer, Integer) -> (Rational, Term)
+termsSumLast :: (Integer, Integer) -> (Rat, Term)
 termsSumLast (i, j) = go i 0 $ term i
   where
     go !i' !s !t
@@ -62,32 +61,33 @@ termsSumLast (i, j) = go i 0 $ term i
 --        v' = v + s * q
 --        q' = q * tM t
 
-partialSum :: Parameters -> Rational
+partialSum :: Parameters -> Rat
 partialSum params@Params{ numThreads = nt, granularity = g }
   = go 1 0
-  -- $ withStrategy (parList rdeepseq)
+  $ withStrategy (parList rdeepseq)
   $ map termsSumLast
   $ chunkRange nt (0, n)
   where
     n = numTerms params
 
-    go :: Rational -> Rational -> [(Rational, Term)] -> Rational
+    go :: Rat -> Rat -> [(Rat, Term)] -> Rat
     go _  !v [] = v
     go !q !v ((s,t):ps) = go q' v' ps
       where
         v' = v + s * q
-        q' = q * tM t
+        q' = q * (tM t % tX t)
 
-calcPi :: Parameters -> Rational
+calcPi :: Parameters -> Rat
 calcPi params = pi'
   where
     pi' = 9801 / (2 * sqrt2 * sum)
     sqrt2 = 1 --toRational $ sqrt 2
     sum = partialSum params
-    
-calcPiP :: Parameters -> Rational
-calcPiP params = pi'
-  where
-    pi' = 9801 / (2 * sqrt2 * sum)
-    sqrt2 = calcSqrt2 params
-    sum = partialSum params
+ 
+calcPiP = undefined
+--calcPiP :: Parameters -> Rat
+--calcPiP params = pi'
+--  where
+--    pi' = 9801 / (2 * sqrt2 * sum)
+--    sqrt2 = calcSqrt2 params
+--    sum = partialSum params
