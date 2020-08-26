@@ -8,7 +8,7 @@ module PiCalc
 import Parameters
 import Term
 import Sqrt2 (calcSqrt2)
-import Data.List (foldl', iterate', genericTake)
+import Data.List (transpose, foldl', iterate', genericTake)
 import Control.Parallel.Strategies
   ( rdeepseq
   , withStrategy
@@ -77,10 +77,18 @@ partialSum params@Params{ numThreads = nt, granularity = g }
   = fst
   $ foldSumLasts
   $ withStrategy (parList rdeepseq)
-  $ map (chunkAndSumLast params)
-  $ chunkRange nt (0, n)
+  $ map (foldSumLasts . map (chunkAndSumLast params))
+  $ transpose $ groupTo nt
+  $ chunkRange nc (0, n)
   where
     n = numTerms params
+    nc = nt * g
+
+groupTo :: Int -> [a] -> [[a]]
+groupTo n [] = []
+groupTo n xs = ys : groupTo n zs
+  where (ys, zs) = splitAt n xs
+
 
 foldSumLasts :: [(Rat, Term)] -> (Rat, Term)
 foldSumLasts = go 1 0 initial
