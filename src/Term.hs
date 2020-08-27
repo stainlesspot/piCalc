@@ -10,8 +10,16 @@ import GHC.Real (reduce, Ratio((:%)))
 import GHC.Generics (Generic)
 
 (%) :: Integer -> Integer -> Rat
-(%) = (R.%)
-type Rat = R.Rational
+--(%) = (R.%)
+(%) = (*)
+--type Rat = R.Rational
+type Rat = Integer
+
+instance Fractional Integer where
+  (/) = (*)
+  fromRational (x:%y) = x * y
+
+
 --newtype Rat = Rat Rational
 --  deriving (Eq, Ord, Show, Generic)
 --
