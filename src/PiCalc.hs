@@ -71,14 +71,15 @@ chunkAndSumLast Params{ numThreads = nt, granularity = g } (i, j)
 --      where
 --        v' = v + s * q
 --        q' = q * tM t
+  -- $ map (foldSumLasts . map (chunkAndSumLast params))
+  -- $ transpose $ groupTo nt
 
 partialSum :: Parameters -> Rat
 partialSum params@Params{ numThreads = nt, granularity = g }
   = fst
   $ foldSumLasts
   $ withStrategy (parList rdeepseq)
-  $ map (foldSumLasts . map (chunkAndSumLast params))
-  $ transpose $ groupTo nt
+  $ map (chunkAndSumLast params)
   $ chunkRange nc (0, n)
   where
     n = numTerms params
